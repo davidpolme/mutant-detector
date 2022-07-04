@@ -4,8 +4,8 @@ import (
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
-	"github.com/davidpolme/mutant-detector/db_service/config"
-	"github.com/davidpolme/mutant-detector/db_service/models"
+	"github.com/davidpolme/mutant-detector/db-service/config"
+	"github.com/davidpolme/mutant-detector/db-service/models"
 )
 
 var Dynamo *dynamodb.DynamoDB
@@ -46,7 +46,7 @@ func CreateTable() error {
 func InsertDnaSeq(dnaseq models.DnaSeq) (bool, error) {
 	//TODO: implement cache
 	//Consulta en el caché
-	
+
 	//Consulta si existe en la base de datos
 
 	//Si no existe, inserta en la base de datos
