@@ -19,7 +19,6 @@ func ConnectDynamo() (db *dynamodb.DynamoDB) {
 		Region: &config.RegionName,
 	})))
 }
-
 // CreateTable creates a table
 func CreateTable() error {
 	_, err := Dynamo.CreateTable(&dynamodb.CreateTableInput{
@@ -44,19 +43,11 @@ func CreateTable() error {
 
 // InsertDnaSeq inserts the struct Dna
 func InsertDnaSeq(dnaseq models.DnaSeq) (bool, error) {
-	//TODO: implement cache
-	//Consulta en el caché
-
-	//Consulta si existe en la base de datos
-
-	//Si no existe, inserta en la base de datos
 	_, err := Dynamo.PutItem(&dynamodb.PutItemInput{
+		TableName: &config.TableName,
 		Item: map[string]*dynamodb.AttributeValue{
 			"Id": {
 				S: aws.String(dnaseq.Id),
-			},
-			"Dna": {
-				SS: aws.StringSlice(dnaseq.Dna),
 			},
 			"IsMutant": {
 				S: aws.String(dnaseq.IsMutant),
@@ -65,13 +56,16 @@ func InsertDnaSeq(dnaseq models.DnaSeq) (bool, error) {
 				S: aws.String(dnaseq.Status),
 			},
 		},
-		TableName: &config.TableName,
 	})
-	return false, err
+	if err != nil {
+		return false, err
+	}
+	return true, nil
 }
 
-func getItemById(id string) error {
-	_, err := Dynamo.GetItem(&dynamodb.GetItemInput{
+func GetDnaSeq(id string) (models.DnaSeq, error) {
+	var dnaseq models.DnaSeq
+	result, err := Dynamo.GetItem(&dynamodb.GetItemInput{
 		TableName: &config.TableName,
 		Key: map[string]*dynamodb.AttributeValue{
 			"Id": {
@@ -79,7 +73,38 @@ func getItemById(id string) error {
 			},
 		},
 	})
-	return err
+	if err != nil {
+		return dnaseq, err
+	}
+	if result.Item == nil {
+		return dnaseq, err
+	}
+	dnaseq.Id = *result.Item["Id"].S
+	dnaseq.IsMutant = *result.Item["IsMutant"].S
+	dnaseq.Status = *result.Item["Status"].S
+	return dnaseq, nil
+}
+
+func UpdateDnaSeq(dnaseq models.DnaSeq) (*dynamodb.UpdateItemOutput, error) {
+	d, err := Dynamo.UpdateItem(&dynamodb.UpdateItemInput{
+		TableName: &config.TableName,
+		Key: map[string]*dynamodb.AttributeValue{
+			"Id": {
+				S: aws.String(dnaseq.Id),
+			},
+		},
+		ExpressionAttributeNames: map[string]*string{
+			"#Dna": aws.String("Dna"),
+		},
+		ExpressionAttributeValues: map[string]*dynamodb.AttributeValue{
+			":dna": {
+				SS: aws.StringSlice(dnaseq.Dna),
+			},
+		},
+		UpdateExpression: aws.String("SET #Dna = :dna"),
+		ReturnValues:     aws.String("UPDATED_NEW"),
+	})
+	return d, err
 }
 
 func existItemInDB(id string) bool {
