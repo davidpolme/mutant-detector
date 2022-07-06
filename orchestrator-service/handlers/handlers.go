@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+
 	"github.com/davidpolme/mutant-detector/orchestator-service/controllers"
 	"github.com/gorilla/mux"
 	"github.com/rs/cors"
@@ -18,8 +19,6 @@ func Handlers() {
 
 	//create route for db
 	router.HandleFunc("/mutant", controllers.ValidateMutant).Methods("POST")
-	router.HandleFunc("/hello", controllers.GetHello).Methods("GET")
-
 
 	//set port
 	PORT := os.Getenv("PORT")

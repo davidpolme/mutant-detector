@@ -4,12 +4,17 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"strings"
-
 	"github.com/davidpolme/mutant-detector/db-service/db"
 	"github.com/davidpolme/mutant-detector/db-service/models"
 )
 
+// GetQueueURL recieve the DNA Sequence to be processed.
+// Inputs:
+//	w: http.ResponseWriter -> Response to be sent to the client.
+//  r: *http.Request -> Request recieved from the client.
+// Output:
+//     If success, a message is sent to the client.
+//     Otherwise, an error is sent to the client.
 func GetDnaSeq(w http.ResponseWriter, r *http.Request) {
 	var dnaStruct models.DnaSeq
 
@@ -19,12 +24,12 @@ func GetDnaSeq(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	if len(dnaStruct.Id) == 0 {
+	if len(dnaStruct.DnaId) == 0 {
 		http.Error(w, "Id is empty", http.StatusBadRequest)
 		return
 	}
 
-	dnaStruct, err = db.GetDnaSeq(dnaStruct.Id)
+	dnaStruct, err = db.GetDnaSeq(dnaStruct.DnaId)
 
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
@@ -45,7 +50,7 @@ func InsertDnaSeq(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	if len(dnaStruct.Dna) == 0 {
+	if len(dnaStruct.DnaId) == 0 {
 		http.Error(w, "Dna is empty", http.StatusBadRequest)
 		return
 	}
@@ -53,7 +58,6 @@ func InsertDnaSeq(w http.ResponseWriter, r *http.Request) {
 	//Valores predeterminados
 	dnaStruct.IsMutant = "Undetermined"
 	dnaStruct.Status = "Pending"
-	dnaStruct.Id = strings.Join(dnaStruct.Dna, "")
 
 	_, err = db.InsertDnaSeq(dnaStruct)
 
@@ -76,7 +80,7 @@ func UpdateDnaSeq(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	if len(dnaStruct.Dna) == 0 {
+	if len(dnaStruct.DnaId) == 0 {
 		http.Error(w, "Id is empty", http.StatusBadRequest)
 		return
 	}

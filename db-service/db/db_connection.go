@@ -19,6 +19,7 @@ func ConnectDynamo() (db *dynamodb.DynamoDB) {
 		Region: &config.RegionName,
 	})))
 }
+
 // CreateTable creates a table
 func CreateTable() error {
 	_, err := Dynamo.CreateTable(&dynamodb.CreateTableInput{
@@ -47,7 +48,7 @@ func InsertDnaSeq(dnaseq models.DnaSeq) (bool, error) {
 		TableName: &config.TableName,
 		Item: map[string]*dynamodb.AttributeValue{
 			"Id": {
-				S: aws.String(dnaseq.Id),
+				S: aws.String(dnaseq.DnaId),
 			},
 			"IsMutant": {
 				S: aws.String(dnaseq.IsMutant),
@@ -79,7 +80,7 @@ func GetDnaSeq(id string) (models.DnaSeq, error) {
 	if result.Item == nil {
 		return dnaseq, err
 	}
-	dnaseq.Id = *result.Item["Id"].S
+	dnaseq.DnaId = *result.Item["Id"].S
 	dnaseq.IsMutant = *result.Item["IsMutant"].S
 	dnaseq.Status = *result.Item["Status"].S
 	return dnaseq, nil
@@ -90,16 +91,11 @@ func UpdateDnaSeq(dnaseq models.DnaSeq) (*dynamodb.UpdateItemOutput, error) {
 		TableName: &config.TableName,
 		Key: map[string]*dynamodb.AttributeValue{
 			"Id": {
-				S: aws.String(dnaseq.Id),
+				S: aws.String(dnaseq.DnaId),
 			},
 		},
 		ExpressionAttributeNames: map[string]*string{
 			"#Dna": aws.String("Dna"),
-		},
-		ExpressionAttributeValues: map[string]*dynamodb.AttributeValue{
-			":dna": {
-				SS: aws.StringSlice(dnaseq.Dna),
-			},
 		},
 		UpdateExpression: aws.String("SET #Dna = :dna"),
 		ReturnValues:     aws.String("UPDATED_NEW"),
