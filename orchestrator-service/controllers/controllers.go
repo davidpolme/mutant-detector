@@ -19,15 +19,31 @@ import (
 //     If success, a SendMessageOutput object containing the result of the service call and nil.
 //     Otherwise, nil and an error from the call to SendMessage.
 func ValidateMutant(w http.ResponseWriter, r *http.Request) {
+	id, err := InsertIntoDb(w, r)
+	//save to db
+	if err != nil {
+		log.Printf("Error inserting into DB: %v  \n", err)
+		return
+	}
+	log.Println(id)
+
+
+	
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	w.Write([]byte(`{"message": "okokok"}`))
+}
+
+func InsertIntoDb(w http.ResponseWriter, r *http.Request) (string,error) {
 	var dnaStruct models.DnaSeq
 
 	//recieve data and send post request
 	err := json.NewDecoder(r.Body).Decode(&dnaStruct)
 	if err != nil {
 		log.Printf("Error decoding JSON: %v  \n", err)
-		return
+		return "",err
 	}
-
 	//Set id equal to DNA sequence
 	dnaStruct.Id = strings.Join(dnaStruct.Dna, ",")
 
@@ -36,13 +52,14 @@ func ValidateMutant(w http.ResponseWriter, r *http.Request) {
 	err = json.NewEncoder(&buf).Encode(dnaStruct)
 	if err != nil {
 		log.Printf("Error encoding JSON: %v  \n", err)
-		return
+		return "",err
 	}
 
 	//send data to post
 	response, err := http.Post("http://localhost:8081/db", "application/json", &buf)
 	if err != nil {
 		log.Printf("Error sending POST request: %v  \n", err)
+		return "",err
 	}
 	defer response.Body.Close()
 
@@ -51,13 +68,9 @@ func ValidateMutant(w http.ResponseWriter, r *http.Request) {
 	err = json.NewDecoder(response.Body).Decode(&msgStruct)
 	if err != nil {
 		log.Printf("Error decoding JSON: %v \n", err)
-		return
+		return "",err
 	}
-
-
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	w.Write([]byte(`{"message":`+`"`+msgStruct.Message+`"}`))
+	return dnaStruct.Id, nil
 }
 
 func SendHello(w http.ResponseWriter, r *http.Request) {
