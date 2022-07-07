@@ -60,6 +60,7 @@ func InsertDnaSeq(w http.ResponseWriter, r *http.Request) {
 	//Valores predeterminados
 	dnaStruct.IsMutant = "Undetermined"
 	dnaStruct.Status = "Pending"
+	
 	_, err = db.InsertDnaSeq(dnaStruct)
 
 	if err != nil {

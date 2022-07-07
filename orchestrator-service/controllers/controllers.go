@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"strings"
 
 	"github.com/davidpolme/mutant-detector/orchestator-service/models"
 )
@@ -23,14 +24,40 @@ func ValidateMutant(w http.ResponseWriter, r *http.Request) {
 	//recieve data and send post request
 	err := json.NewDecoder(r.Body).Decode(&dnaStruct)
 	if err != nil {
-		fmt.Println(err)
+		log.Printf("Error decoding JSON: %v  \n", err)
 		return
 	}
-	json.NewEncoder(w).Encode(&dnaStruct)
-	//send data to post
-	http.Post("http://localhost:8081/mutant", "application/json", r.Body)
-	
 
+	//Set id equal to DNA sequence
+	dnaStruct.Id = strings.Join(dnaStruct.Dna, ",")
+
+	//Encode data to json
+	var buf bytes.Buffer
+	err = json.NewEncoder(&buf).Encode(dnaStruct)
+	if err != nil {
+		log.Printf("Error encoding JSON: %v  \n", err)
+		return
+	}
+
+	//send data to post
+	response, err := http.Post("http://localhost:8081/db", "application/json", &buf)
+	if err != nil {
+		log.Printf("Error sending POST request: %v  \n", err)
+	}
+	defer response.Body.Close()
+
+	//decode response
+	var msgStruct models.Hello
+	err = json.NewDecoder(response.Body).Decode(&msgStruct)
+	if err != nil {
+		log.Printf("Error decoding JSON: %v \n", err)
+		return
+	}
+
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	w.Write([]byte(`{"message":`+`"`+msgStruct.Message+`"}`))
 }
 
 func SendHello(w http.ResponseWriter, r *http.Request) {
@@ -43,7 +70,7 @@ func SendHello(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	//print body message
-	fmt.Println("Mensaje Original: ",helloStruct.Message)
+	fmt.Println("Mensaje Original: ", helloStruct.Message)
 
 	var buf bytes.Buffer
 	err = json.NewEncoder(&buf).Encode(helloStruct)
@@ -51,7 +78,7 @@ func SendHello(w http.ResponseWriter, r *http.Request) {
 		log.Fatal(err)
 	}
 	//send data to post
-	response, err :=http.Post("http://localhost:8081/hello", "application/json", &buf)
+	response, err := http.Post("http://localhost:8081/hello", "application/json", &buf)
 
 	if err != nil {
 		log.Fatal(err)
@@ -64,5 +91,5 @@ func SendHello(w http.ResponseWriter, r *http.Request) {
 		log.Fatal(err)
 	}
 	//print body message
-	fmt.Println("Mensaje Respuesta: ",helloResponse.Message)
+	fmt.Println("Mensaje Respuesta: ", helloResponse.Message)
 }
