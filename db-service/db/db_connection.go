@@ -48,7 +48,7 @@ func InsertDnaSeq(dnaseq models.DnaSeq) (bool, error) {
 		TableName: &config.TableName,
 		Item: map[string]*dynamodb.AttributeValue{
 			"Id": {
-				S: aws.String(dnaseq.DnaId),
+				S: aws.String(dnaseq.Id),
 			},
 			"IsMutant": {
 				S: aws.String(dnaseq.IsMutant),
@@ -80,7 +80,7 @@ func GetDnaSeq(id string) (models.DnaSeq, error) {
 	if result.Item == nil {
 		return dnaseq, err
 	}
-	dnaseq.DnaId = *result.Item["Id"].S
+	dnaseq.Id = *result.Item["Id"].S
 	dnaseq.IsMutant = *result.Item["IsMutant"].S
 	dnaseq.Status = *result.Item["Status"].S
 	return dnaseq, nil
@@ -91,7 +91,7 @@ func UpdateDnaSeq(dnaseq models.DnaSeq) (*dynamodb.UpdateItemOutput, error) {
 		TableName: &config.TableName,
 		Key: map[string]*dynamodb.AttributeValue{
 			"Id": {
-				S: aws.String(dnaseq.DnaId),
+				S: aws.String(dnaseq.Id),
 			},
 		},
 		ExpressionAttributeNames: map[string]*string{

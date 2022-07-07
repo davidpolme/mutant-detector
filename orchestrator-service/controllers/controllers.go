@@ -1,38 +1,14 @@
 package controllers
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"log"
 	"net/http"
-	"os"
-	"strings"
 
 	"github.com/davidpolme/mutant-detector/orchestator-service/models"
 )
-
-func InsertIntoDB(w http.ResponseWriter, r *http.Request) string {
-	response, err := http.Post("http://localhost:8081/db", "application/json", r.Body)
-
-	if err != nil {
-		fmt.Print(err.Error())
-		os.Exit(1)
-	}
-
-	responseData, err := ioutil.ReadAll(response.Body)
-
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	var responseObject models.DnaSeq
-	json.Unmarshal(responseData, &responseObject)
-	fmt.Println(responseObject.Dna)
-
-	return  responseObject.Id
-}
-
 
 // ValidateMutant recieve a dna sequence then validate if its a mutant or not.
 // Inputs:
@@ -43,21 +19,50 @@ func InsertIntoDB(w http.ResponseWriter, r *http.Request) string {
 //     Otherwise, nil and an error from the call to SendMessage.
 func ValidateMutant(w http.ResponseWriter, r *http.Request) {
 	var dnaStruct models.DnaSeq
+
+	//recieve data and send post request
 	err := json.NewDecoder(r.Body).Decode(&dnaStruct)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		fmt.Println(err)
 		return
 	}
-	if len(dnaStruct.Dna) == 0 {
-		http.Error(w, "Dna is empty", http.StatusBadRequest)
+	json.NewEncoder(w).Encode(&dnaStruct)
+	//send data to post
+	http.Post("http://localhost:8081/mutant", "application/json", r.Body)
+	
+
+}
+
+func SendHello(w http.ResponseWriter, r *http.Request) {
+	var helloStruct models.Hello
+
+	//print body message
+	err := json.NewDecoder(r.Body).Decode(&helloStruct)
+	if err != nil {
+		fmt.Println(err)
 		return
 	}
-	dnaStruct.Id = strings.Join(dnaStruct.Dna, "")
-	json.NewEncoder(w).Encode(dnaStruct)
+	//print body message
+	fmt.Println("Mensaje Original: ",helloStruct.Message)
 
-	response := InsertIntoDB(w, r)
+	var buf bytes.Buffer
+	err = json.NewEncoder(&buf).Encode(helloStruct)
+	if err != nil {
+		log.Fatal(err)
+	}
+	//send data to post
+	response, err :=http.Post("http://localhost:8081/hello", "application/json", &buf)
 
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	w.Write([]byte(`{"message":` + response + `}`))
+	if err != nil {
+		log.Fatal(err)
+	}
+	//
+	//decode response
+	var helloResponse models.Hello
+	err = json.NewDecoder(response.Body).Decode(&helloResponse)
+	if err != nil {
+		log.Fatal(err)
+	}
+	//print body message
+	fmt.Println("Mensaje Respuesta: ",helloResponse.Message)
 }

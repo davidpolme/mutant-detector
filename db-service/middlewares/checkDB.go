@@ -6,7 +6,6 @@ import (
 	"github.com/davidpolme/mutant-detector/db-service/db"
 )
 
-//TODO: implement checkDB middleware
 func CheckDB(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		//check if table is created

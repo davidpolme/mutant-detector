@@ -1,7 +1,8 @@
 package models
 
 type DnaSeq struct {
-	DnaId       string   `json:"id"`
+	Id       string   `json:"id"`
+	Dna      []string `json:"dna"`
 	IsMutant string   `json:"isMutant"`
 	Status   string   `json:"status"`
 }

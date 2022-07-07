@@ -2,6 +2,8 @@ package controllers
 
 import (
 	"encoding/json"
+	"fmt"
+	"log"
 	"net/http"
 
 	"github.com/davidpolme/mutant-detector/db-service/db"
@@ -24,12 +26,12 @@ func GetDnaSeq(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	if len(dnaStruct.DnaId) == 0 {
+	if len(dnaStruct.Id) == 0 {
 		http.Error(w, "Id is empty", http.StatusBadRequest)
 		return
 	}
 
-	dnaStruct, err = db.GetDnaSeq(dnaStruct.DnaId)
+	dnaStruct, err = db.GetDnaSeq(dnaStruct.Id)
 
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
@@ -48,17 +50,16 @@ func InsertDnaSeq(w http.ResponseWriter, r *http.Request) {
 
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
+		fmt.Println(err)
 		return
 	}
-	if len(dnaStruct.DnaId) == 0 {
-		http.Error(w, "Dna is empty", http.StatusBadRequest)
+	if len(dnaStruct.Id) == 0 {
+		http.Error(w, "Id is empty", http.StatusBadRequest)
 		return
 	}
-
 	//Valores predeterminados
 	dnaStruct.IsMutant = "Undetermined"
 	dnaStruct.Status = "Pending"
-
 	_, err = db.InsertDnaSeq(dnaStruct)
 
 	if err != nil {
@@ -68,7 +69,27 @@ func InsertDnaSeq(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	w.Write([]byte(`{"message":"Dna sequence saved in db"}`))
+	w.Write([]byte(`{"message":"Dna sequence inserted in db"}`))
+}
+
+func SayHello(w http.ResponseWriter, r *http.Request) {
+	var helloStruct models.Hello
+
+	err := json.NewDecoder(r.Body).Decode(&helloStruct)
+
+	if err != nil {
+		log.Printf(err.Error())
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	helloStruct.Message = helloStruct.Message + " - ;"
+
+	log.Printf("Message: %v", helloStruct.Message)
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(helloStruct)
 }
 
 func UpdateDnaSeq(w http.ResponseWriter, r *http.Request) {
@@ -80,7 +101,8 @@ func UpdateDnaSeq(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	if len(dnaStruct.DnaId) == 0 {
+
+	if len(dnaStruct.Id) == 0 {
 		http.Error(w, "Id is empty", http.StatusBadRequest)
 		return
 	}
