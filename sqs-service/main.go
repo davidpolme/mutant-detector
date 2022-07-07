@@ -6,18 +6,12 @@ import (
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/sqs"
-)
-
-const (
-	QueueUrl    = "https://sqs.us-east-1.amazonaws.com/146521158052/dna_anomaly_queue.fifo"
-	Region      = "us-east-1"
-	CredPath    = "/home/davidpolme/.aws/credentials"
-	CredProfile = "aws-cred-profile"
+	"github.com/davidpolme/mutant-detector/sqs-service/conf"
 )
 
 func main() {
 	sess, _ := session.NewSession(&aws.Config{
-		Region:     aws.String(Region),
+		Region:     aws.String(conf.Region),
 		MaxRetries: aws.Int(5),
 	})
 
@@ -26,7 +20,7 @@ func main() {
 	// Send message
 	send_params := &sqs.SendMessageInput{
 		MessageBody:            aws.String("message body by dpmsnotes Hey"), // Required
-		QueueUrl:               aws.String(QueueUrl),                    // Required
+		QueueUrl:               aws.String(conf.QueueUrl),                 // Required
 		MessageGroupId:         aws.String("20"),
 		MessageDeduplicationId: aws.String("ddd"), // Required             // (optional) 傳進去的 message 延遲 n 秒才會被取出, 0 ~ 900s (15 minutes)
 	}
@@ -35,5 +29,4 @@ func main() {
 		fmt.Println(err)
 	}
 	fmt.Printf("[Send message] \n%v \n\n", send_resp)
-
 }
