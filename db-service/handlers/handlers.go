@@ -6,8 +6,9 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/davidpolme/mutant-detector/db-service/db"
 	"github.com/davidpolme/mutant-detector/db-service/controllers"
+	"github.com/davidpolme/mutant-detector/db-service/db"
+	"github.com/davidpolme/mutant-detector/db-service/middlewares"
 	"github.com/gorilla/mux"
 	"github.com/rs/cors"
 )
@@ -34,14 +35,17 @@ func Handlers() {
 	router := mux.NewRouter()
 
 	//create route for db
-	router.HandleFunc("/db", controllers.InsertDnaSeq).Methods("POST")
-	router.HandleFunc("/db", controllers.UpdateDnaSeq).Methods("PUT")
+	router.HandleFunc("/db", middlewares.CheckDB(controllers.InsertDnaSeq)).Methods("POST")
+	router.HandleFunc("/hello",controllers.SayHello).Methods("POST")
+	router.HandleFunc("/db-service",  middlewares.CheckDB(controllers.UpdateDnaSeq)).Methods("PUT")
+	router.HandleFunc("/db-service",  middlewares.CheckDB(controllers.GetDnaSeq)).Methods("Get")
 
 	//set port
 	PORT := os.Getenv("PORT")
 	if PORT == "" {
-		PORT = "8080"
+		PORT = "8081"
 	}
+
 	//allow cors
 	fmt.Println("Server started on port " + PORT)
 	handler := cors.AllowAll().Handler(router)
