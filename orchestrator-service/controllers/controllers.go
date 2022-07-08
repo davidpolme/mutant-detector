@@ -35,6 +35,10 @@ func ValidateMutant(w http.ResponseWriter, r *http.Request) {
 	err = utils.CheckADNStruct(dnaStruct.Dna, dnaStruct.Id)
 	if err != nil {
 		log.Printf("Error validating DNA: %v  \n", err)
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte(`{"error":  "` + err.Error() + `"}`))
+		return
 	}
 
 	//Check if exist in DB
