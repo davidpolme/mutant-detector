@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"strings"
 
 	"github.com/davidpolme/mutant-detector/db-service/db"
 	"github.com/davidpolme/mutant-detector/db-service/models"
@@ -57,10 +58,12 @@ func InsertDnaSeq(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Id is empty", http.StatusBadRequest)
 		return
 	}
+	dnaStruct.Id = strings.Trim(dnaStruct.Id, "\"")
 	//Valores predeterminados
 	dnaStruct.IsMutant = "Undetermined"
 	dnaStruct.Status = "Pending"
-	
+
+	log.Println(dnaStruct.Id)
 	_, err = db.InsertDnaSeq(dnaStruct)
 
 	if err != nil {
