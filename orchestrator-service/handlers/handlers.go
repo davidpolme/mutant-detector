@@ -26,6 +26,7 @@ func Handlers() {
 	if PORT == "" {
 		PORT = config.PORT
 	}
+	
 	//allow cors
 	fmt.Println("Server started on port " + PORT)
 	handler := cors.AllowAll().Handler(router)

@@ -86,23 +86,6 @@ func GetDnaSeq(id string) (models.DnaSeq, error) {
 	return dnaseq, nil
 }
 
-func UpdateDnaSeq(dnaseq models.DnaSeq) (*dynamodb.UpdateItemOutput, error) {
-	d, err := Dynamo.UpdateItem(&dynamodb.UpdateItemInput{
-		TableName: &config.TableName,
-		Key: map[string]*dynamodb.AttributeValue{
-			"Id": {
-				S: aws.String(dnaseq.Id),
-			},
-		},
-		ExpressionAttributeNames: map[string]*string{
-			"#Dna": aws.String("Dna"),
-		},
-		UpdateExpression: aws.String("SET #Dna = :dna"),
-		ReturnValues:     aws.String("UPDATED_NEW"),
-	})
-	return d, err
-}
-
 func existItemInDB(id string) bool {
 	_, err := Dynamo.GetItem(&dynamodb.GetItemInput{
 		TableName: &config.TableName,

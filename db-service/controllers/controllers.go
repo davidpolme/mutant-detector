@@ -95,30 +95,3 @@ func SayHello(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(helloStruct)
 }
-
-func UpdateDnaSeq(w http.ResponseWriter, r *http.Request) {
-	var dnaStruct models.DnaSeq
-
-	err := json.NewDecoder(r.Body).Decode(&dnaStruct)
-
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
-
-	if len(dnaStruct.Id) == 0 {
-		http.Error(w, "Id is empty", http.StatusBadRequest)
-		return
-	}
-
-	_, err = db.UpdateDnaSeq(dnaStruct)
-
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
-
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	w.Write([]byte(`{"message":"Dna sequence updated in db"}`))
-}
