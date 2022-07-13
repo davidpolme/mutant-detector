@@ -43,10 +43,10 @@ func transposeMatrix(slice [][]string) [][]string {
 //checkIfMutant is used to check if there is an anomaly pattern in the dna sequence
 func checkIfMutant(dna [][]string) bool {
 	horizontal := checkHorizontal(dna)
-	//vertical := checkVertical(dna)
+	vertical := checkVertical(dna)
 	diagonal := checkDiagonal(dna)
-	//return diagonal+horizontal+vertical > 1
-	return horizontal + diagonal > 1
+	return diagonal+horizontal+vertical > 1
+	//return horizontal+diagonal > 1
 }
 
 func checkDiagonal(dna [][]string) int {
@@ -56,35 +56,31 @@ func checkDiagonal(dna [][]string) int {
 
 func checkHorizontal(dna [][]string) int {
 	fmt.Println("[Matrix]", dna)
-	hinta := []int{}
-	hintb := []int{}
 	count := 0
 
-	for i := 0; i < len(dna); i ++ {
-		for j := 0; j < len(dna[i])-2; j+=2 {
-			//search hints for possible patterns
-			if j+3 < len(dna[i]) {
-				if dna[i][j] == dna[i][j+2] {
-					hinta = append(hinta, i, j)
-
+	for i := 0; i < len(dna); i++ {
+		//search hints for possible patterns
+		if 3 < len(dna[i]) {
+			if dna[i][0] == dna[i][2] {
+				if dna[i][0] == dna[i][1] && dna[i][1] == dna[i][3] {
+					count++
 				}
-				if dna[i][j+2] == dna[i][j+3] {
-					hintb = append(hintb, i, j+3)
+			}
+			if dna[i][3] == dna[i][4] {
+				if dna[i][2] == dna[i][3] && dna[i][1] == dna[i][3] {
+					count++
 				}
 			}
 		}
 
 	}
-	log.Println("[hinta]", hinta)
-	log.Println("[hintb]", hintb)
+	log.Println("[count]", count)
 	return count
 }
 
 func checkVertical(dna [][]string) int {
 	dnaMatrix := transposeMatrix(dna)
-	fmt.Println("[dnaMatrix]", dnaMatrix)
 	count := checkHorizontal(dnaMatrix)
-
 	return count
 }
 
