@@ -7,44 +7,28 @@ import (
 
 func main() {
 	dnaRequest := []string{"ATGCGA", "CAGTGC", "TTATGT", "AGAAGG", "CCCCTA", "TCACTG"}
-	fmt.Println(dnaRequest)
-	dnaResponse := printItemsOfSlice(dnaRequest)
-	fmt.Println(dnaResponse)
 
-	newT:=transpose(dnaResponse)
-fmt.Println(newT)
+	dnaMatrix := sliceToMatrix(dnaRequest)
+
+	dnaResponse := checkIfMutant(dnaMatrix)
+	fmt.Println("result", dnaResponse)
 }
 
-func convertStringIntoChars(dna string) []string {
-	var newDna []string
-	for i := 0; i < len(dna); i++ {
-		newDna = append(newDna, string(dna[i]))
-	}
-	return newDna
-}
-
-func printItemsOfSlice(slice []string) [][]string {
-	//declarevariable 2d array of strings
+//transformIntoMatrix takes a slice of strings and returns a slice of slices of strings
+//Inputs: slice of strings
+//Outputs: slice of slices of strings
+func sliceToMatrix(slice []string) [][]string {
 	var dna [][]string
 	for i := 0; i < len(slice); i++ {
-		fmt.Println()
 		dna = append(dna, convertStringIntoChars(slice[i]))
 	}
 	return dna
 }
 
-func checkIfThereAre4CharsInARow(dna string) bool {
-	coincidences := 0
-	for i := 0; i < len(dna)-3; i++ {
-		if dna[i] == dna[i+1] && dna[i+1] == dna[i+2] && dna[i+2] == dna[i+3] {
-			coincidences++
-		}
-		log.Println("Coincidence:", coincidences, dna[i], dna[i+1], dna[i+2], dna[i+3])
-	}
-	return coincidences > 1
-}
-
-func transpose(slice [][]string) [][]string {
+//transformIntoMatrix Transpose matrix
+//Inputs: slice of strings - Original matrix
+//Outputs: slice of strings - Transposed matrix
+func transposeMatrix(slice [][]string) [][]string {
 	var newSlice [][]string
 	for i := 0; i < len(slice[0]); i++ {
 		var newRow []string
@@ -56,19 +40,68 @@ func transpose(slice [][]string) [][]string {
 	return newSlice
 }
 
-func checkIf4ConsecutiveChar(dna []string) bool {
-	coincidences := 0
+//checkIfMutant is used to check if there is an anomaly pattern in the dna sequence
+func checkIfMutant(dna [][]string) bool {
+	horizontal := checkHorizontal(dna)
+	//vertical := checkVertical(dna)
+	diagonal := checkDiagonal(dna)
+	//return diagonal+horizontal+vertical > 1
+	return horizontal + diagonal > 1
+}
 
-	for i := 0; i < len(dna[0]); i++ {
-		if dna[0][i] == dna[1][i] && dna[1][i] == dna[2][i] && dna[2][i] == dna[3][i] {
-			coincidences++
+func checkDiagonal(dna [][]string) int {
+	count := 0
+	return count
+}
+
+func checkHorizontal(dna [][]string) int {
+	fmt.Println("[Matrix]", dna)
+	hinta := []int{}
+	hintb := []int{}
+	count := 0
+
+	for i := 0; i < len(dna); i ++ {
+		for j := 0; j < len(dna[i])-2; j+=2 {
+			//search hints for possible patterns
+			if j+3 < len(dna[i]) {
+				if dna[i][j] == dna[i][j+2] {
+					hinta = append(hinta, i, j)
+
+				}
+				if dna[i][j+2] == dna[i][j+3] {
+					hintb = append(hintb, i, j+3)
+				}
+			}
 		}
-		if dna[0][i] == dna[0][i+1] && dna[0][i+1] == dna[0][i+2] && dna[0][i+2] == dna[0][i+3] {
-			coincidences++
-		}
-		log.Println("Coincidence:", coincidences, dna[0][i], dna[1][i], dna[2][i], dna[3][i])
+
 	}
-	return coincidences > 1
+	log.Println("[hinta]", hinta)
+	log.Println("[hintb]", hintb)
+	return count
+}
+
+func checkVertical(dna [][]string) int {
+	dnaMatrix := transposeMatrix(dna)
+	fmt.Println("[dnaMatrix]", dnaMatrix)
+	count := checkHorizontal(dnaMatrix)
+
+	return count
+}
+
+func checkIf4ConsecutiveChar(dna [][]string) bool {
+	count := 0
+	for i := 0; i < len(dna); i++ {
+		for j := 0; j < len(dna[i]); j++ {
+			if dna[i][j] == dna[i][j+1] {
+				count++
+			}
+		}
+		if count == 3 {
+			return true
+		}
+		count = 0
+	}
+	return false
 }
 
 func stringToGrid(dna string, col int) []string {
@@ -83,4 +116,12 @@ func printStringsIntoChars(dna string) {
 	for i := 0; i < len(dna); i++ {
 		fmt.Println(dna[i])
 	}
+}
+
+func convertStringIntoChars(dna string) []string {
+	var newDna []string
+	for i := 0; i < len(dna); i++ {
+		newDna = append(newDna, string(dna[i]))
+	}
+	return newDna
 }
