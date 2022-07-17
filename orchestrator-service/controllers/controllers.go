@@ -64,23 +64,9 @@ func ValidateMutant(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte(`{"Error":"` + err.Error() + `"}`))
 		return
 	}
-	/*
-		// TODO:
-		ismutant := getFromDb(dnaStruct.Id)
-			if ismutant == "true" {
-			}
 
-
-			if isMutant {
-				w.Header().Set("Content-Type", "application/json")
-				w.WriteHeader(http.StatusInternalServerError)
-				w.Write([]byte(id))
-			}
-	*/
 	aws.SendMessageToSQS(dnaStruct.Id)
 	log.Println(dnaStruct.Id)
-
-	//data := getFromDb(id)
 
 	//Check if exist in DB
 	mutantStatus = checkIfMutantFromDb(dnaStruct.Id)
@@ -93,7 +79,7 @@ func ValidateMutant(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusForbidden)
-	w.Write([]byte(`{"message":  "Se está procesando la peticion, por favor inténtelo de nuevo"}`))
+	w.Write([]byte(`{"message":  "sequence is processing in the background"}`))
 }
 
 func InsertIntoDb(buf *bytes.Buffer) error {

@@ -36,8 +36,7 @@ func Handlers() {
 
 	//create route for db
 	router.HandleFunc("/db", middlewares.CheckDB(controllers.InsertDnaSeq)).Methods("POST")
-	router.HandleFunc("/hello",controllers.SayHello).Methods("POST")
-	router.HandleFunc("/db-exist",  middlewares.CheckDB(controllers.GetDnaSeq)).Methods("POST")
+	router.HandleFunc("/db-exist", middlewares.CheckDB(controllers.GetDnaSeq)).Methods("POST")
 
 	//set port
 	PORT := os.Getenv("PORT")

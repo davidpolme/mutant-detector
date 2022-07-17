@@ -75,23 +75,3 @@ func InsertDnaSeq(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 	w.Write([]byte(`{"message":"Dna sequence inserted in db"}`))
 }
-
-func SayHello(w http.ResponseWriter, r *http.Request) {
-	var helloStruct models.Hello
-
-	err := json.NewDecoder(r.Body).Decode(&helloStruct)
-
-	if err != nil {
-		log.Printf(err.Error())
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
-
-	helloStruct.Message = helloStruct.Message + " - ;"
-
-	log.Printf("Message: %v", helloStruct.Message)
-
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(helloStruct)
-}

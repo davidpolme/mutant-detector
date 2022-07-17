@@ -43,6 +43,8 @@ func CreateTable() error {
 }
 
 // InsertDnaSeq inserts the struct Dna
+// Inputs: struct Dna struct
+// Outputs: bool, error (true if success, false if error)
 func InsertDnaSeq(dnaseq models.DnaSeq) (bool, error) {
 	_, err := Dynamo.PutItem(&dynamodb.PutItemInput{
 		TableName: &config.TableName,
@@ -53,8 +55,8 @@ func InsertDnaSeq(dnaseq models.DnaSeq) (bool, error) {
 			"IsMutant": {
 				S: aws.String(dnaseq.IsMutant),
 			},
-			"Status": {
-				S: aws.String(dnaseq.Status),
+			"dna": {
+				S: aws.String(dnaseq.Id),
 			},
 		},
 	})
@@ -64,6 +66,11 @@ func InsertDnaSeq(dnaseq models.DnaSeq) (bool, error) {
 	return true, nil
 }
 
+
+
+// GetDnaSeq gets DnaSeq from the table
+// Inputs: string id (id of the DnaSeq)
+// Outputs: struct DnaSeq, error 
 func GetDnaSeq(id string) (models.DnaSeq, error) {
 	var dnaseq models.DnaSeq
 	result, err := Dynamo.GetItem(&dynamodb.GetItemInput{
@@ -85,7 +92,7 @@ func GetDnaSeq(id string) (models.DnaSeq, error) {
 	dnaseq.Status = *result.Item["Status"].S
 	return dnaseq, nil
 }
-
+/*
 func existItemInDB(id string) bool {
 	_, err := Dynamo.GetItem(&dynamodb.GetItemInput{
 		TableName: &config.TableName,
@@ -95,8 +102,7 @@ func existItemInDB(id string) bool {
 			},
 		},
 	})
-	if err != nil {
-		return false
-	}
-	return true
+	
+	return err != nil
 }
+*/

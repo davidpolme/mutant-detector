@@ -14,25 +14,33 @@ func init() {
 	Dynamo = ConnectDynamo()
 }
 
+// ConnectDynamo creates a new dynamo session and returns a pointer to the dynamo client
 func ConnectDynamo() (db *dynamodb.DynamoDB) {
 	return dynamodb.New(session.Must(session.NewSessionWithOptions(session.Options{
-    SharedConfigState: session.SharedConfigEnable,
-  	})))
+		SharedConfigState: session.SharedConfigEnable,
+	})))
 }
 
-func UpdateDnaSeq(dnaseq models.Request) (*dynamodb.UpdateItemOutput, error) {
-	return Dynamo.UpdateItem(&dynamodb.UpdateItemInput{
-		TableName: aws.String(config.DynamoTable),
-		Key: map[string]*dynamodb.AttributeValue{
-			"id": {
+// InsertDnaSeq inserts the struct Dna into the dynamo table
+// Input: DnaSeq struct
+// Output: bool, error if any
+func UpdateDnaSeq(dnaseq models.DnaSeq) (bool, error) {
+	_, err := Dynamo.PutItem(&dynamodb.PutItemInput{
+		TableName: &config.DynamoTable,
+		Item: map[string]*dynamodb.AttributeValue{
+			"Id": {
 				S: aws.String(dnaseq.Id),
 			},
-		},
-		ExpressionAttributeValues: map[string]*dynamodb.AttributeValue{
-			":dna": {
-				S: aws.String(dnaseq.Id),
+			"IsMutant": {
+				S: aws.String(dnaseq.IsMutant),
+			},
+			"Status": {
+				S: aws.String(dnaseq.Status),
 			},
 		},
-		UpdateExpression: aws.String("SET dna = :dna"),
 	})
+	if err != nil {
+		return false, err
+	}
+	return true, nil
 }
