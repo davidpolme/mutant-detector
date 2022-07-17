@@ -3,84 +3,94 @@ package main
 import (
 	"fmt"
 	"log"
+	"strings"
+
+	"github.com/davidpolme/mutant-detector/script-logic/utils"
 )
 
 func main() {
-	dnaRequest := []string{"ATGCGA", "CAGTGC", "TTATGT", "AGAAGG", "CCCCTA", "TCACTG"}
-	fmt.Println(dnaRequest)
-	dnaResponse := printItemsOfSlice(dnaRequest)
-	fmt.Println(dnaResponse)
+	dnaRequest := []string{"TCACTG", "TTGCGA", "CAGTGC", "TTATGT", "AGAAGG", "CCCCAA"}
 
-	newT:=transpose(dnaResponse)
-fmt.Println(newT)
+	//Convert slices to string
+	dnaString := strings.Join(dnaRequest, "")
+	//Separate string into slices of strings
+	dna := utils.StringToSlice(dnaString, 6)
+	//Convert slices to matrix
+	dnaMatrix := utils.SliceToMatrix(dna)
+	//Check if there is a pattern
+	dnaResponse := checkIfMutant(dnaMatrix)
+	log.Println("[result]:", dnaResponse)
 }
 
-func convertStringIntoChars(dna string) []string {
-	var newDna []string
+//checkIfMutant is used to check if there is an anomaly pattern in the dna sequence
+//Inputs: Matrix of DNA sequence
+//Outputs: true if there is an anomaly pattern in the dna sequence
+func checkIfMutant(dna [][]string) bool {
+	count := 0
+	count = checkHorizontal(dna, count)
+	if count > 1 {
+		return true
+	}
+	count += checkVertical(dna, count)
+	if count > 1 {
+		return true
+	}
+	count += checkDiagonalNegative(dna, count)
+	if count > 1 {
+		return true
+	}
+	count += checkDiagonalPositive(dna, count)
+	return count > 1
+}
+
+func checkHorizontal(dna [][]string, count int) int {
+	fmt.Println("[Matrix]:", dna)
+
 	for i := 0; i < len(dna); i++ {
-		newDna = append(newDna, string(dna[i]))
-	}
-	return newDna
-}
-
-func printItemsOfSlice(slice []string) [][]string {
-	//declarevariable 2d array of strings
-	var dna [][]string
-	for i := 0; i < len(slice); i++ {
-		fmt.Println()
-		dna = append(dna, convertStringIntoChars(slice[i]))
-	}
-	return dna
-}
-
-func checkIfThereAre4CharsInARow(dna string) bool {
-	coincidences := 0
-	for i := 0; i < len(dna)-3; i++ {
-		if dna[i] == dna[i+1] && dna[i+1] == dna[i+2] && dna[i+2] == dna[i+3] {
-			coincidences++
+		//Si en esta secuencia count es mayor que 1 se retorna el valor de count
+		if count > 1 {
+			break
 		}
-		log.Println("Coincidence:", coincidences, dna[i], dna[i+1], dna[i+2], dna[i+3])
-	}
-	return coincidences > 1
-}
-
-func transpose(slice [][]string) [][]string {
-	var newSlice [][]string
-	for i := 0; i < len(slice[0]); i++ {
-		var newRow []string
-		for j := 0; j < len(slice); j++ {
-			newRow = append(newRow, slice[j][i])
+		//search hints for possible patterns
+		if dna[i][0] == dna[i][2] {
+			if dna[i][0] == dna[i][1] && dna[i][1] == dna[i][3] {
+				count++
+				continue
+			}
 		}
-		newSlice = append(newSlice, newRow)
-	}
-	return newSlice
-}
-
-func checkIf4ConsecutiveChar(dna []string) bool {
-	coincidences := 0
-
-	for i := 0; i < len(dna[0]); i++ {
-		if dna[0][i] == dna[1][i] && dna[1][i] == dna[2][i] && dna[2][i] == dna[3][i] {
-			coincidences++
+		if dna[i][3] == dna[i][4] {
+			if dna[i][2] == dna[i][3] && dna[i][1] == dna[i][3] {
+				count++
+				continue
+			}
 		}
-		if dna[0][i] == dna[0][i+1] && dna[0][i+1] == dna[0][i+2] && dna[0][i+2] == dna[0][i+3] {
-			coincidences++
-		}
-		log.Println("Coincidence:", coincidences, dna[0][i], dna[1][i], dna[2][i], dna[3][i])
 	}
-	return coincidences > 1
+	log.Println("[count]", count)
+	return count
 }
 
-func stringToGrid(dna string, col int) []string {
-	var newDna []string
-	for i := 0; i < len(dna); i += col {
-		newDna = append(newDna, dna[i:i+col])
-	}
-	return newDna
+func checkVertical(dna [][]string, count int) int {
+	dnaMatrix := utils.TransposeMatrix(dna)
+	count = checkHorizontal(dnaMatrix, count)
+	return count
 }
 
-func printStringsIntoChars(dna string) {
-	for i := 0; i < len(dna); i++ {
-		fmt.Println(dna[i])
+func checkDiagonalNegative(dna [][]string, count int) int {
+	log.Println("[dna]: ", dna)
+
+	//1 step: Check main diagonal
+	count = utils.CheckMainDiagonal(dna, count)
+	if count > 1 {
+		return count
 	}
+	//2 step, check adjacent diagonals
+	count = utils.CheckAdjacentDiagonal(dna, count)
+	log.Println("[count]: ", count)
+	return count
+}
+
+func checkDiagonalPositive(dna [][]string, count int) int {
+	dnaMatrix := utils.ReverseMatrix(dna)
+	count = checkDiagonalNegative(dnaMatrix, count)
+	return count
 }
