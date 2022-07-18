@@ -1,13 +1,12 @@
 package controller
 
 import (
-	"fmt"
 	"log"
 
 	"github.com/davidpolme/mutant-detector/lambda-worker/utils"
 )
 
-func CheckMutant(dnaRequest string) bool{
+func CheckMutant(dnaRequest string) bool {
 	dna := utils.StringToSlice(dnaRequest, 6)
 	//Convert slices to matrix
 	dnaMatrix := utils.SliceToMatrix(dna)
@@ -23,23 +22,27 @@ func CheckMutant(dnaRequest string) bool{
 func checkIfMutant(dna [][]string) bool {
 	count := 0
 	count = checkHorizontal(dna, count)
+	//log.Println("[count horizontal]", count)
 	if count > 1 {
 		return true
 	}
-	count += checkVertical(dna, count)
+	count = checkVertical(dna, count)
+	//log.Println("[count vertical]", count)
+
 	if count > 1 {
 		return true
 	}
-	count += checkDiagonalNegative(dna, count)
+	count = checkDiagonalNegative(dna, count)
+
 	if count > 1 {
 		return true
 	}
-	count += checkDiagonalPositive(dna, count)
+
+	count = checkDiagonalPositive(dna, count)
 	return count > 1
 }
 
 func checkHorizontal(dna [][]string, count int) int {
-	fmt.Println("[Matrix]:", dna)
 
 	for i := 0; i < len(dna); i++ {
 		//Si en esta secuencia count es mayor que 1 se retorna el valor de count
@@ -47,8 +50,8 @@ func checkHorizontal(dna [][]string, count int) int {
 			break
 		}
 		//search hints for possible patterns
-		if dna[i][0] == dna[i][2] {
-			if dna[i][0] == dna[i][1] && dna[i][1] == dna[i][3] {
+		if dna[i][0] == dna[i][3] {
+			if dna[i][0] == dna[i][1] && dna[i][1] == dna[i][2] {
 				count++
 				continue
 			}
@@ -60,32 +63,32 @@ func checkHorizontal(dna [][]string, count int) int {
 			}
 		}
 	}
-	log.Println("[count]", count)
 	return count
 }
 
 func checkVertical(dna [][]string, count int) int {
 	dnaMatrix := utils.TransposeMatrix(dna)
 	count = checkHorizontal(dnaMatrix, count)
+	//log.Println("[count Vertical]", count)
 	return count
 }
 
 func checkDiagonalNegative(dna [][]string, count int) int {
-	log.Println("[dna]: ", dna)
-
 	//1 step: Check main diagonal
 	count = utils.CheckMainDiagonal(dna, count)
+
 	if count > 1 {
 		return count
 	}
+
 	//2 step, check adjacent diagonals
-	count = utils.CheckAdjacentDiagonal(dna, count)
-	log.Println("[count]: ", count)
+	count = utils.CheckAdjacentDiagonals(dna, count)
 	return count
 }
 
 func checkDiagonalPositive(dna [][]string, count int) int {
 	dnaMatrix := utils.ReverseMatrix(dna)
 	count = checkDiagonalNegative(dnaMatrix, count)
+	//log.Println("[count d-positive]: ", count)
 	return count
 }
