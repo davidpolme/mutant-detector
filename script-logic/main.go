@@ -9,7 +9,7 @@ import (
 )
 
 func main() {
-	dnaRequest := []string{"TCACTG", "TTGCGA", "CAGTGC", "TTATGT", "AGAAGG", "CCCCAA"}
+	dnaRequest := []string{"TCACTG", "CCACTA", "AACACA", "CACACA", "CAGTGC", "AGGGTT"}
 
 	//Convert slices to string
 	dnaString := strings.Join(dnaRequest, "")

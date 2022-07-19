@@ -55,8 +55,8 @@ func InsertDnaSeq(dnaseq models.DnaSeq) (bool, error) {
 			"IsMutant": {
 				S: aws.String(dnaseq.IsMutant),
 			},
-			"dna": {
-				S: aws.String(dnaseq.Id),
+			"Status": {
+				S: aws.String(dnaseq.Status),
 			},
 		},
 	})
@@ -66,11 +66,9 @@ func InsertDnaSeq(dnaseq models.DnaSeq) (bool, error) {
 	return true, nil
 }
 
-
-
 // GetDnaSeq gets DnaSeq from the table
 // Inputs: string id (id of the DnaSeq)
-// Outputs: struct DnaSeq, error 
+// Outputs: struct DnaSeq, error
 func GetDnaSeq(id string) (models.DnaSeq, error) {
 	var dnaseq models.DnaSeq
 	result, err := Dynamo.GetItem(&dynamodb.GetItemInput{
@@ -92,6 +90,7 @@ func GetDnaSeq(id string) (models.DnaSeq, error) {
 	dnaseq.Status = *result.Item["Status"].S
 	return dnaseq, nil
 }
+
 /*
 func existItemInDB(id string) bool {
 	_, err := Dynamo.GetItem(&dynamodb.GetItemInput{
@@ -102,7 +101,7 @@ func existItemInDB(id string) bool {
 			},
 		},
 	})
-	
+
 	return err != nil
 }
 */

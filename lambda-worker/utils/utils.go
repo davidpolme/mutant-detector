@@ -87,7 +87,7 @@ func CheckAdjacentDiagonals(dna [][]string, count int) int {
 	go CheckAdjacentDiagonal_B(dna, adjX1, adjX2, centerX, centerY, c_B)
 	count += <-c_A
 	count += <-c_B
-	
+
 	if count > 1 {
 		return count
 	}
@@ -120,20 +120,19 @@ func CheckAdjacentDiagonal_B(dna [][]string, adjX1, adjX2, centerX, centerY int,
 
 func CheckAdjacentDiagonal_A(dna [][]string, adjX1, adjX2, centerX, centerY int, c chan int) {
 	count := 0
-	for i := 1; i <= 2; i++ {
+	myloop:for i := 1; i <= 2; i++ {
 		switch {
 		case dna[adjX1][i] == dna[adjX2][i+adjX2]:
 			if dna[adjX1+1][i+1] == dna[adjX2-1][i+2] && dna[adjX2-1][i+2] == dna[adjX1][i] {
 				count++
-				i = 3
-				break
+				break myloop
 			}
-			fallthrough
+				
 		case true:
 			if dna[centerX][centerY] == dna[centerX+1][centerY+1] {
 				if dna[centerX-1][centerY-1] == dna[centerX+2][centerY+2] && dna[centerX-1][centerY-1] == dna[centerX+1][centerY+1] {
 					count++
-					i = 3
+					break myloop
 				}
 			}
 		}

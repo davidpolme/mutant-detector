@@ -1,9 +1,6 @@
 package controllers
 
 import (
-	"fmt"
-	"log"
-
 	"github.com/davidpolme/mutant-detector/script-logic/utils"
 )
 
@@ -29,7 +26,7 @@ func CheckIfMutant(dna [][]string) bool {
 }
 
 func checkHorizontal(dna [][]string, count int) int {
-	fmt.Println("[Matrix]:", dna)
+	//fmt.Println("[Matrix]:", dna)
 
 	for i := 0; i < len(dna); i++ {
 		//Si en esta secuencia count es mayor que 1 se retorna el valor de count
@@ -50,32 +47,37 @@ func checkHorizontal(dna [][]string, count int) int {
 			}
 		}
 	}
-	log.Println("[count]", count)
+	//log.Println("[count Horizontal]", count)
 	return count
 }
 
 func checkVertical(dna [][]string, count int) int {
 	dnaMatrix := utils.TransposeMatrix(dna)
 	count = checkHorizontal(dnaMatrix, count)
+	//log.Println("[count Vertical]", count)
 	return count
 }
 
 func checkDiagonalNegative(dna [][]string, count int) int {
-	log.Println("[dna]: ", dna)
+	//log.Println("[dna]: ", dna)
 
 	//1 step: Check main diagonal
 	count = utils.CheckMainDiagonal(dna, count)
+	//log.Println("[count Main Diagonal]", count)
+
 	if count > 1 {
 		return count
 	}
 	//2 step, check adjacent diagonals
 	count = utils.CheckAdjacentDiagonal(dna, count)
-	log.Println("[count]: ", count)
+	//log.Println("[count Adjacent Diagonal]", count)
+	//log.Println("[count d-negative]: ", count)
 	return count
 }
 
 func checkDiagonalPositive(dna [][]string, count int) int {
 	dnaMatrix := utils.ReverseMatrix(dna)
 	count = checkDiagonalNegative(dnaMatrix, count)
+	//log.Println("[count d-positive]: ", count)
 	return count
 }

@@ -17,14 +17,12 @@ func init() {
 	l, _ := zap.NewProduction()
 	logger = l
 	defer logger.Sync() // flushes buffer, if any
-
 }
 
 func SQSHandler(ctx context.Context, sqsEvent events.SQSEvent) error {
 	for _, message := range sqsEvent.Records {
 
 		logger.Info("Recieved SQS event", zap.Any("message", message.Body))
-
 
 		//check if the sequence is a mutant
 		res := controller.CheckMutant(message.Body)
