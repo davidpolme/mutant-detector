@@ -9,6 +9,6 @@ type Response struct {
 }
 
 type SQSMessage struct {
-	Request  Request `json:"request"`
-	Response bool    `json:"isMutant"`
+	DNA      []string `json:"dna"`
+	IsMutant bool     `json:"isMutant"`
 }

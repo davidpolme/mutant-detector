@@ -5,7 +5,7 @@ import (
 	"log"
 
 	"github.com/aws/aws-lambda-go/events"
-	"github.com/davidpolme/mutant-detector/orchestator-lambda/aws"
+	"github.com/davidpolme/mutant-detector/orchestator-lambda/aws/db"
 	"github.com/davidpolme/mutant-detector/orchestator-lambda/models"
 	"github.com/davidpolme/mutant-detector/orchestator-lambda/utils"
 )
@@ -30,9 +30,16 @@ func MyHandler(request events.APIGatewayProxyRequest) (models.Response, error) {
 	if err != nil {
 		return models.Response{}, err
 	}
-
-	//Send Data to SQS Queue to be sent to  database
-	err = aws.SendToSQS(requestBody, resp.IsMutant)
+	/*
+		//Send Data to SQS Queue to be sent to  database
+		err = aws.SendToSQS(requestBody, resp.IsMutant)
+		//Handle Error
+		if err != nil {
+			return models.Response{}, err
+		}
+	*/
+	//send data to DynamoDB
+	err = db.SendToDynamoDB(requestBody, resp.IsMutant)
 	//Handle Error
 	if err != nil {
 		return models.Response{}, err
