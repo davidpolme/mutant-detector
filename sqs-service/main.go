@@ -19,10 +19,10 @@ func main() {
 
 	// Send message
 	send_params := &sqs.SendMessageInput{
-		MessageBody:            aws.String("message body by dpmsnotes Hey"), // Required
-		QueueUrl:               aws.String(conf.QueueUrl),                 // Required
+		MessageBody:            aws.String("message body by dpmsnotes Hey"), 
+		QueueUrl:               aws.String(conf.QueueUrl),                
 		MessageGroupId:         aws.String("20"),
-		MessageDeduplicationId: aws.String("ddd"), // Required             // (optional) 傳進去的 message 延遲 n 秒才會被取出, 0 ~ 900s (15 minutes)
+		MessageDeduplicationId: aws.String("ddd"),        
 	}
 	send_resp, err := svc.SendMessage(send_params)
 	if err != nil {
